@@ -10,16 +10,16 @@ In modern high-precision manufacturing, Computer Numerical Control (CNC) machine
 ```mermaid
 graph TD
     A["CNC Machine Spindle/Axis"] -->|Mechanical Vibrations| B["MPU6050 Accelerometer (0x68)"]
-    B -->|I2C Protocol (SDA/SCL)| C["Raspberry Pi (Edge Device)"]
+    B -->|"I2C Protocol (SDA/SCL)"| C["Raspberry Pi (Edge Device)"]
     C -->|vibration_monitor.py| D["Real-Time Edge Analytics Engine"]
-    D -->|Data Buffer Collection| E["Raw Telemetry Logs (logs/data/xyz_acceleration.csv)"]
-    D -->|Butterworth High-Pass| F["Gravity/DC Bias Removal"]
-    F -->|Cumulative Summation (Cumsum)| G["Velocity & Displacement Integrations"]
-    G -->|ISO 10816/20816 Criteria| H["Machine Severity Classification"]
-    G -->|Feature Extraction (Time/Freq)| I["Feature Vector Creation"]
-    I -->|Random Forest Classifier| J["Mechanical Fault Prediction"]
-    J -->|Dynamic GUI Renderer| K["Matplotlib Real-Time Subplots"]
-    J -->|Terminal Outputs| L["Condition Status & Confidence Metrics"]
+    D -->|"Data Buffer Collection"| E["Raw Telemetry Logs (logs/data/xyz_acceleration.csv)"]
+    D -->|"Butterworth High-Pass"| F["Gravity/DC Bias Removal"]
+    F -->|"Cumulative Summation (Cumsum)"| G["Velocity & Displacement Integrations"]
+    G -->|"ISO 10816/20816 Criteria"| H["Machine Severity Classification"]
+    G -->|"Feature Extraction (Time/Freq)"| I["Feature Vector Creation"]
+    I -->|"Random Forest Classifier"| J["Mechanical Fault Prediction"]
+    J -->|"Dynamic GUI Renderer"| K["Matplotlib Real-Time Subplots"]
+    J -->|"Terminal Outputs"| L["Condition Status & Confidence Metrics"]
 ```
 
 By continuously sampling tri-axial acceleration, computing physical vibration attributes, comparing findings to ISO standards, and scoring features using a pre-trained Random Forest model, this pipeline identifies mechanical anomalies before they escalate into catastrophic equipment failures.
