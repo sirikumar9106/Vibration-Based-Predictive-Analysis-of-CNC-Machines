@@ -148,3 +148,43 @@ Standard threshold tests only flag *when* a machine is shaking, but they cannot 
 
 > [!NOTE]
 > **Warning on Variable Initialization:** The variable `GROQ_API_KEY` is referenced in the script's placeholder analysis block. If you wish to use local LLM-based diagnostic summaries, ensure you define `GROQ_API_KEY = os.getenv("GROQ_API_KEY", "")` or load it globally to avoid Python throwing a `NameError`.
+
+---
+
+## 5. Software Requirements & Library Evaluation
+
+A `requirements.txt` file is provided in this repository to define all dependencies. Below is a detailed breakdown of each library used, its industrial applications, and its specific role in our CNC vibration pipeline.
+
+### A. NumPy (`numpy`)
+* **General Definition:** A fundamental scientific computing library in Python that introduces optimized, homogeneous multi-dimensional array structures (`ndarrays`) along with highly efficient mathematical functions.
+* **Industrial Context:** NumPy is the foundational backbone of virtually all data science, machine learning, and hardware telemetry pipelines in modern engineering. It is found in aerospace telemetry analysis, seismic processing, and automated quality control systems.
+* **Why Chosen Specifically Here:** Analyzing high-frequency physical systems at $100\text{ Hz}$ generates $300$ data points per second across three axes. Pure Python lists are slow and introduce excessive garbage collection overhead. NumPy arrays execute vectorized operations compiled in C, allowing zero-overhead mathematical operations (such as calculating the mean or scaling signals by gravitational constants) directly on the Raspberry Pi's processor.
+
+### B. SciPy (`scipy`)
+* **General Definition:** An advanced engineering library built on top of NumPy, offering comprehensive toolkits for numerical integration, digital signal processing (DSP), optimization, and statistical analysis.
+* **Industrial Context:** SciPy is standard in acoustics engineering, signal intelligence, radar processing, control systems design, and laboratory instrumentation.
+* **Why Chosen Specifically Here:**
+  * **Filtering (`scipy.signal`):** Raw accelerometer data contains structural gravity offsets ($9.81\text{ m/s}^2$ bias) and integration drift. The 4th-order Butterworth filter and zero-phase `filtfilt` forward/backward execution remove this drift without shifting the phase of our waves.
+  * **Fourier Analysis (`scipy.fft`):** RFFT transforms time-series acceleration into frequency spectra. Identifying the dominant frequency is critical because matching it with the spindle's rotation rate immediately diagnoses imbalances or shaft offsets.
+  * **Statistical Moments (`scipy.stats`):** Measuring skewness and kurtosis allows the detection of shock transients (such as a chipped tool tip or bearing spalls) that don't affect RMS values but spike peak distributions.
+
+### C. Matplotlib (`matplotlib`)
+* **General Definition:** A plotting and visualization library designed to render publication-quality graphics, charts, and interactive GUI subplots.
+* **Industrial Context:** Used in engineering control rooms, SCADA system dashboards, research labs, and test benches to monitor telemetry streams.
+* **Why Chosen Specifically Here:** Matplotlib's interactive plotting mode (`plt.ion()`) allows the system to redraw and scale the 3 subplots (Acceleration, Velocity, and Displacement) on-the-fly. This visual loop feedback is vital for machine operators to diagnose CNC issues visually as they occur.
+
+### D. Joblib (`joblib`)
+* **General Definition:** A library optimized for serializing and deserializing large Python objects and NumPy-heavy data structures.
+* **Industrial Context:** Joblib is widely used in production pipelines to deploy trained machine learning models from high-performance GPU cloud environments to low-power edge servers.
+* **Why Chosen Specifically Here:** Instead of rebuilding or training the Random Forest classifier at runtime on the Raspberry Pi, `joblib.load()` instantly deserializes and maps the saved `.pkl` files into system memory in milliseconds, minimizing startup lag.
+
+### E. Scikit-Learn (`scikit-learn`)
+* **General Definition:** A machine learning library offering classification, regression, clustering, and data preprocessing models.
+* **Industrial Context:** Scikit-Learn is the leading framework for tabular and structured industrial ML, used in predictive maintenance, credit risk grading, and factory sorting systems.
+* **Why Chosen Specifically Here:** While the Random Forest model is pre-trained, the Raspberry Pi requires the library to deserialize, scale incoming features (`scaler.transform`), and run model predictions (`model.predict`) in real-time.
+
+### F. MPU6050 Raspberry Pi (`mpu6050-raspberrypi` & `smbus2`)
+* **General Definition:** Specialized driver packages designed to facilitate hardware communication with the MPU6050 accelerometer over I2C. `smbus2` handles low-level Linux System Management Bus communications.
+* **Industrial Context:** Found in hardware prototyping, IoT sensor hubs, drone attitude controllers, and smart factory edge nodes.
+* **Why Chosen Specifically Here:** Direct register manipulation via raw Linux I2C commands is error-prone. This driver abstracts register addressing, automatically converting raw hexadecimal sensor registers into clean floating-point acceleration values for the $X, Y,$ and $Z$ axes.
+

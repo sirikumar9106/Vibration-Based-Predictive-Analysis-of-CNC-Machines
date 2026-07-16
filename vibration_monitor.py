@@ -1,3 +1,9 @@
+# ==============================================================================
+# CNC Vibration Monitoring & Predictive Maintenance System
+# Hardware: Raspberry Pi + MPU6050 Accelerometer
+# Setup: pip install -r requirements.txt
+# ==============================================================================
+
 import time
 import joblib
 import numpy as np
@@ -17,6 +23,9 @@ DT = 1 / SAMPLING_RATE
 WINDOW_SIZE = 90
 
 LABELS = ["Ideal", "Cracking", "Offset_Pulley", "Wear"]
+
+# Environment Configuration
+GROQ_API_KEY = os.getenv("GROQ_API_KEY", None)
 
 # Setup Directories
 os.makedirs("logs/plots", exist_ok=True)
